@@ -87,3 +87,16 @@ export class Cometh extends Resource {
     return { direction: this.direction };
   }
 }
+
+/**
+ * This represents an empty space, useful to not have
+ * to deal with "nulls" in a special way.
+ */
+export class Space extends Resource {
+  getResourceName(): ResourceName {
+    throw new Error("No associated resource");
+  }
+  getProperties(): Record<string, any> {
+    return {}
+  }
+}
