@@ -1,0 +1,17 @@
+{
+  "name": "crossmint",
+  "version": "0.0.1",
+  "description": "code challenge",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "alejandro.carrasco@gmail.com",
+  "license": "",
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.10",
+    "mocha": "^11.1.0",
+    "prettier": "3.5.3"
+  }
+}
