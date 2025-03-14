@@ -10,6 +10,38 @@ export type Direction = "up" | "down" | "right" | "left";
 export type ResourceName = "polyanets" | "soloons" | "comeths";
 
 /**
+ * Visitor pattern, so we can add behavior based on type
+ * without type checking nor increasing the Resource footprint.
+ */
+export interface ResourceVisitor<T> {
+  visitPolyanet(resource: Polyanet): T;
+  visitSoloon(resource: Soloon): T;
+  visitCometh(resource: Cometh): T;
+  visitSpace(resource: Space): T;
+}
+
+/**
+ * A resource visitor that does the same for every resource;
+ * we can subclass it to override specific behaviors.
+ */
+export class DefaultResourceVisitor<T> implements ResourceVisitor<T> {
+  constructor(protected delegate: (resource: Resource) => T) {}
+
+  visitPolyanet(resource: Polyanet): T {
+    return this.delegate(resource);
+  }
+  visitSoloon(resource: Soloon): T {
+    return this.delegate(resource);
+  }
+  visitCometh(resource: Cometh): T {
+    return this.delegate(resource);
+  }
+  visitSpace(resource: Space): T {
+    return this.delegate(resource);
+  }
+}
+
+/**
  * This class represents the base for our different celestial objects.
  *
  * Some tradeoffs of coupling for simplicity were made:
@@ -32,6 +64,13 @@ export abstract class Resource {
     };
   }
 
+  public equals(other: Resource): boolean {
+    return (
+      Object.getPrototypeOf(this) == Object.getPrototypeOf(other) &&
+      JSON.stringify(this) === JSON.stringify(other)
+    );
+  }
+
   /**
    * The name of the resource, as used in the API.
    */
@@ -41,6 +80,12 @@ export abstract class Resource {
    * The properties (other than location) that define the object, as used in the creation API.
    */
   abstract getProperties(): Record<string, any>;
+
+  /**
+   *
+   * @param visitor
+   */
+  abstract receive<T>(visitor: ResourceVisitor<T>): T;
 }
 
 export class Polyanet extends Resource {
@@ -50,6 +95,10 @@ export class Polyanet extends Resource {
 
   getProperties(): Record<string, unknown> {
     return {};
+  }
+
+  receive<T>(visitor: ResourceVisitor<T>): T {
+    return visitor.visitPolyanet(this);
   }
 }
 
@@ -69,6 +118,10 @@ export class Soloon extends Resource {
   getProperties(): Record<string, any> {
     return { color: this.color };
   }
+
+  receive<T>(visitor: ResourceVisitor<T>): T {
+    return visitor.visitSoloon(this);
+  }
 }
 
 export class Cometh extends Resource {
@@ -86,17 +139,23 @@ export class Cometh extends Resource {
   getProperties(): Record<string, any> {
     return { direction: this.direction };
   }
+
+  receive<T>(visitor: ResourceVisitor<T>): T {
+    return visitor.visitCometh(this);
+  }
 }
 
 /**
- * This represents an empty space, useful to not have
- * to deal with "nulls" in a special way.
+ * This represents an empty space.
  */
 export class Space extends Resource {
   getResourceName(): ResourceName {
     throw new Error("No associated resource");
   }
   getProperties(): Record<string, any> {
-    return {}
+    return {};
+  }
+  receive<T>(visitor: ResourceVisitor<T>): T {
+    return visitor.visitSpace(this);
   }
 }

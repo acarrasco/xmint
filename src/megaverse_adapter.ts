@@ -19,6 +19,7 @@ export class MegaverseAdapter {
 
     /**
      * Converts a bidimensional array into a linear array, applying a transformation.
+     * 
      * @param matrix The bidimensional array containing source elements.
      * @param transform A function that takes a pair of coordinates and a source element, and returns a transformed element.
      * @returns The array of transformed elements.
@@ -35,6 +36,9 @@ export class MegaverseAdapter {
         return result;
     }
 
+    /**
+     * Creates a Resource from the goal response contents.
+     */
     protected goalCellToResource(row: number, column: number, goalCell: GoalCell): Resource {
         switch (goalCell) {
             case "SPACE": return new Space(row, column);
@@ -42,6 +46,9 @@ export class MegaverseAdapter {
         }
     }
 
+    /**
+     * Creates a Resource object from the map response contents.
+     */
     protected mapCellToResource(row: number, column: number, mapCell: MapCell): Resource {
         switch (mapCell?.type) {
             case undefined: return new Space(row, column);

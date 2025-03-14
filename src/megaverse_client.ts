@@ -103,7 +103,7 @@ export class Client {
   }
 }
 
-export function makeDefaultClient(candidateId: string | undefined): Client {
+export function makeDefaultClient(candidateId?: string): Client {
   candidateId ||= process.env.CANDIDATE_ID;
   if (!candidateId) {
     throw new Error("missing candidate id");
