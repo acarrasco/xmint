@@ -1,8 +1,14 @@
 import { Color, Direction, Resource } from "./resources";
 
-type Fetch = typeof window.fetch;
+type Fetch = typeof global.fetch;
 
-export type GoalCell = "SPACE" | "POLYANET";
+export type GoalCell =
+  | "SPACE"
+  | "POLYANET"
+  | `${Uppercase<Direction>}_COMETH`
+  | `${Uppercase<Color>}_SOLOON`;
+
+export type GoalResponse = { goal: GoalCell[][] };
 
 export type PolyanetCell = {
   type: 0;
@@ -34,11 +40,13 @@ export type MapResponse = {
  * This type allows us to ensure that an object keys are strings; while
  * not forcing a loose Record<string, any> signature.
  */
-type StringKeys<T> = { [K in Extract<keyof T,string>] : any } extends T ? T : never;
+type StringKeys<T> = { [K in Extract<keyof T, string>]: any } extends T
+  ? T
+  : never;
 
 /**
- * Raw client for the megaverse challenge API.
- * 
+ * Raw client for the Megaverse challenge API.
+ *
  * For a more complex API we could create a class for each type of request,
  * but it seems overkill here.
  */
@@ -88,11 +96,11 @@ export class Client {
     return this.myFetch(url, { method: "DELETE", body, headers });
   }
 
-  public async getGoal(): Promise<GoalCell[][]> {
+  public async getGoal(): Promise<GoalResponse> {
     const url = `${this.baseUrl}/map/${this.candidateId}/goal`;
     const response = await this.myFetch(url);
     const json = await response.json();
-    return json.goal;
+    return json;
   }
 
   public async getMap(): Promise<MapResponse> {
@@ -103,10 +111,12 @@ export class Client {
   }
 }
 
-export function makeDefaultClient(candidateId?: string): Client {
+export function makeDefaultClient(myFetch = fetch, candidateId?: string): Client {
   candidateId ||= process.env.CANDIDATE_ID;
   if (!candidateId) {
-    throw new Error("missing candidate id");
+    throw new Error(
+      "missing candidate id, supply it as an argument or set the environment variable 'CANDIDATE_ID'",
+    );
   }
-  return new Client(fetch, "https://challenge.crossmint.com/api", candidateId);
+  return new Client(myFetch, "https://challenge.crossmint.io/api", candidateId);
 }

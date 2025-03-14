@@ -5,7 +5,7 @@ import { DefaultResourceVisitor, Resource } from "./resources";
 /**
  * This class selects the appropriate action when updating a resource to match a goal.
  * 
- * If the goal is a space, the action is delete, other the action is save.
+ * If the goal is a space, the action is delete, otherwise the action is save.
  */
 export class GetUpdateActionVisitor extends DefaultResourceVisitor<(r: Resource) => Promise<Response>> {
     constructor(protected client: Client) {
@@ -45,24 +45,49 @@ export class CompareAndUpdateAction {
         protected getTarget: GetUpdateTargetVisitor,
     ) {}
 
-    public async execute(current: Resource, goal: Resource) {
+    /**
+     * Executes the action necessary to convert one resource into another.
+     * 
+     * @param current the resource in the current map 
+     * @param goal the resource in the goal
+     * @returns true if the cell was changed, false otherwise.
+     */
+    public async execute(current: Resource, goal: Resource): Promise<Boolean> {
+        if (JSON.stringify(current.getLocation()) !== JSON.stringify(goal.getLocation())) {
+            throw Error(`Mismatched locations for ${current} and ${goal}`);
+        }
+
         if (current.equals(goal)) {
-            return;
+            console.log(`Skip ${goal}`);
+            return false;
         }
 
         const target = goal.receive(this.getTarget) || current;
         const action = goal.receive(this.getAction);
 
+        console.log(`Changing from ${current} to ${goal}`);
         await action(target);
+        return true;
     }
 }
 
-export async function achieveGoal(current: Resource[], goal: Resource[], compareAndUpdateAction: CompareAndUpdateAction) {
+/**
+ * Tries to change the current map to match the goal map.
+ * 
+ * IMPORTANT: the current and goal arrays must be in the same order.
+ * 
+ * @param current The current resources in the map.
+ * @param goal The resources in the goal.
+ * @param compareAndUpdateAction  
+ */
+export async function achieveGoal(current: Resource[], goal: Resource[], compareAndUpdateAction: CompareAndUpdateAction): Promise<number> {
     if (current.length != goal.length) {
         throw new Error(`Mismatched lengths for current and goal (${current.length}, ${goal.length})`);
     }
-
+    let totalChanged = 0;
     for (let i = 0; i < current.length; i++) {
-        await compareAndUpdateAction.execute(current[i], goal[i]);
+        const isChanged = await compareAndUpdateAction.execute(current[i], goal[i]); 
+        totalChanged += Number(isChanged);
     }
+    return totalChanged;
 }

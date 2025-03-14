@@ -64,6 +64,10 @@ export abstract class Resource {
     };
   }
 
+  public toString(): string {
+    return `${Object.getPrototypeOf(this).constructor.name}(${JSON.stringify(this)})`;
+  }
+
   public equals(other: Resource): boolean {
     return (
       Object.getPrototypeOf(this) == Object.getPrototypeOf(other) &&

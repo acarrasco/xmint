@@ -8,13 +8,15 @@ export class MegaverseAdapter {
     constructor(protected client: Client) {}
 
     public async getGoalResources(): Promise<Resource[]> {
-        const rawGoal = await this.client.getGoal();
-        return this.transformMatrix(rawGoal, this.goalCellToResource);
+        const goalResponse = await this.client.getGoal();
+        console.log({goalResponse});
+        return this.transformMatrix(goalResponse.goal, this.goalCellToResource);
     }
 
     public async getMapResources(): Promise<Resource[]> {
-        const rawMap = await this.client.getMap();
-        return this.transformMatrix(rawMap.map.content, this.mapCellToResource);
+        const mapResponse = await this.client.getMap();
+        console.log({mapResponse});
+        return this.transformMatrix(mapResponse.map.content, this.mapCellToResource);
     }
 
     /**
@@ -43,6 +45,15 @@ export class MegaverseAdapter {
         switch (goalCell) {
             case "SPACE": return new Space(row, column);
             case "POLYANET": return new Polyanet(row, column);
+            // I feel dirty doing this, but extracting the patterns in a type-safe way was too tricky
+            case "BLUE_SOLOON": return new Soloon(row, column, "blue");
+            case "PURPLE_SOLOON": return new Soloon(row, column, "purple");
+            case "RED_SOLOON": return new Soloon(row, column, "red");
+            case "WHITE_SOLOON": return new Soloon(row, column, "white");
+            case "DOWN_COMETH": return new Cometh(row, column, "down");
+            case "LEFT_COMETH": return new Cometh(row, column, "left");
+            case "RIGHT_COMETH": return new Cometh(row, column, "right");
+            case "UP_COMETH": return new Cometh(row, column, "up");
         }
     }
 
