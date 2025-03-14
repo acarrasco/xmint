@@ -69,10 +69,7 @@ export abstract class Resource {
   }
 
   public equals(other: Resource): boolean {
-    return (
-      Object.getPrototypeOf(this) == Object.getPrototypeOf(other) &&
-      JSON.stringify(this) === JSON.stringify(other)
-    );
+    return this.toString() === other.toString();
   }
 
   /**

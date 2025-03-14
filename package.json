@@ -4,14 +4,34 @@
   "description": "code challenge",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "start": "npx tsx ./src/run.ts",
+    "test": "true",
+    "prepare": "husky",
+    "format": "prettier . --write",
+    "lint-staged": "lint-staged"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown",
+    "*.ts": "npx tslint"
   },
   "author": "alejandro.carrasco@gmail.com",
   "license": "",
   "devDependencies": {
-    "@types/mocha": "^10.0.10",
+    "@eslint/js": "^9.22.0",
     "@types/node": "^22.13.10",
-    "mocha": "^11.1.0",
-    "prettier": "3.5.3"
+    "eslint": "^9.22.0",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "3.5.3",
+    "typescript-eslint": "^8.26.1"
+  },
+  "dependencies": {
+    "fetch-retry": "^6.0.0"
   }
 }

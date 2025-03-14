@@ -86,32 +86,45 @@ export class Client {
       ...resource.getProperties(),
     });
     const headers = this.getHeaders();
-    return this.myFetch(url, { method: "POST", body, headers });
+    return this.myFetch(url, {
+      method: "POST",
+      redirect: "follow",
+      body,
+      headers,
+    });
   }
 
   public delete(resource: Resource): ReturnType<Fetch> {
     const url = this.makeResourceUrl(resource);
     const body = this.makeBody(resource.getLocation());
     const headers = this.getHeaders();
-    return this.myFetch(url, { method: "DELETE", body, headers });
+    return this.myFetch(url, {
+      method: "DELETE",
+      redirect: "follow",
+      body,
+      headers,
+    });
   }
 
   public async getGoal(): Promise<GoalResponse> {
     const url = `${this.baseUrl}/map/${this.candidateId}/goal`;
-    const response = await this.myFetch(url);
+    const response = await this.myFetch(url, { redirect: "follow" });
     const json = await response.json();
     return json;
   }
 
   public async getMap(): Promise<MapResponse> {
     const url = `${this.baseUrl}/map/${this.candidateId}`;
-    const response = await this.myFetch(url);
+    const response = await this.myFetch(url, { redirect: "follow" });
     const json = await response.json();
     return json;
   }
 }
 
-export function makeDefaultClient(myFetch = fetch, candidateId?: string): Client {
+export function makeDefaultClient(
+  myFetch = fetch,
+  candidateId?: string,
+): Client {
   candidateId ||= process.env.CANDIDATE_ID;
   if (!candidateId) {
     throw new Error(
